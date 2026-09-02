@@ -8,6 +8,13 @@ import navScenario from './assets/image/nav-scenario.png'
 import navSituation from './assets/image/nav-situation.png'
 import navTraining from './assets/image/nav-training.png'
 import selectArrow from './assets/image/select-arrow.png'
+import DatasetConfig from './pages/DatasetConfig.vue'
+import DatasetEmpty from './pages/DatasetEmpty.vue'
+import DatasetManage from './pages/DatasetManage.vue'
+import DatasetPreview from './pages/DatasetPreview.vue'
+import DatasetTask from './pages/DatasetTask.vue'
+import FineTuneBase from './pages/FineTuneBase.vue'
+import FineTuneExpand from './pages/FineTuneExpand.vue'
 
 const pages = [
   { id: 'fineTuneBase', code: '4.1', title: '大模型训练微调', type: 'fineTuneBase' },
@@ -22,6 +29,16 @@ const pages = [
 const activeIndex = ref(0)
 const activePage = computed(() => pages[activeIndex.value])
 const activeTitle = computed(() => `${activePage.value.code} ${activePage.value.title}`)
+const pageComponents = {
+  fineTuneBase: FineTuneBase,
+  fineTuneExpand: FineTuneExpand,
+  datasetManage: DatasetManage,
+  datasetEmpty: DatasetEmpty,
+  datasetPreview: DatasetPreview,
+  datasetConfig: DatasetConfig,
+  datasetTask: DatasetTask,
+}
+const activeComponent = computed(() => pageComponents[activePage.value.type])
 
 const topTabs = ['《防务快报》', '数据配置', '训练参数', '服务发布']
 const footerItems = [
@@ -87,6 +104,65 @@ const previewLines = [
 
 const taskSteps = ['选择数据', '规则配置', '生成预览', '创建任务']
 
+const activePageProps = computed(() => {
+  if (activePage.value.type === 'fineTuneBase' || activePage.value.type === 'fineTuneExpand') {
+    return {
+      fields: baseFields.value,
+      openDropdown: openDropdown.value,
+      activeTab: activeTab.value,
+      openPanels: openPanels.value,
+      selectArrow,
+      topTabs,
+      dropdownKey,
+    }
+  }
+
+  if (activePage.value.type === 'datasetManage') {
+    return {
+      columns: datasetColumns,
+      rows: filteredDatasetRows.value,
+      selectedDataset: selectedDataset.value,
+      keyword: keyword.value,
+    }
+  }
+
+  if (activePage.value.type === 'datasetEmpty') {
+    return {
+      fields: configFields.value,
+      openDropdown: openDropdown.value,
+      selectArrow,
+      filePreview,
+      dropdownKey,
+    }
+  }
+
+  if (activePage.value.type === 'datasetPreview') {
+    return {
+      fields: configFields.value,
+      openDropdown: openDropdown.value,
+      selectArrow,
+      filePreview,
+      previewLines,
+      dropdownKey,
+    }
+  }
+
+  if (activePage.value.type === 'datasetConfig') {
+    return {
+      fields: configFields.value,
+      openDropdown: openDropdown.value,
+      selectArrow,
+      enabledRules: enabledRules.value,
+      dropdownKey,
+    }
+  }
+
+  return {
+    showTaskModal: showTaskModal.value,
+    taskSteps,
+  }
+})
+
 function go(delta) {
   activeIndex.value = (activeIndex.value + delta + pages.length) % pages.length
 }
@@ -144,6 +220,14 @@ function toggleRule(rule) {
 function createDatasetTask() {
   selectPage(6)
 }
+
+function updateKeyword(value) {
+  keyword.value = value
+}
+
+function closeTaskModal() {
+  showTaskModal.value = false
+}
 </script>
 
 <template>
@@ -184,194 +268,20 @@ function createDatasetTask() {
             <h2>{{ activeTitle }}</h2>
           </div>
 
-          <template v-if="activePage.type === 'fineTuneBase' || activePage.type === 'fineTuneExpand'">
-            <div class="form-grid" :class="{ dense: activePage.type === 'fineTuneExpand' }">
-              <label v-for="field in baseFields" :key="field.key" class="field">
-                <span>{{ field.label }}</span>
-                <button class="select-like" type="button" @click.stop="toggleDropdown('base', field)">
-                  {{ field.value }}
-                  <img :src="selectArrow" alt="" />
-                </button>
-                <div v-if="openDropdown === dropdownKey('base', field)" class="select-menu">
-                  <button
-                    v-for="option in field.options"
-                    :key="option"
-                    type="button"
-                    @click.stop="chooseOption(field, option)"
-                  >
-                    {{ option }}
-                  </button>
-                </div>
-              </label>
-            </div>
-
-            <div class="tab-strip">
-              <button
-                v-for="(tab, index) in topTabs"
-                :key="tab"
-                type="button"
-                :class="{ active: activeTab === index }"
-                @click="selectTab(index)"
-              >
-                {{ tab }}
-              </button>
-            </div>
-
-            <div class="accordion-list">
-              <button
-                v-for="panel in ['训练数据集配置', '模型参数配置', '训练评估指标']"
-                :key="panel"
-                class="accordion-row"
-                :class="{ open: openPanels.includes(panel) }"
-                type="button"
-                @click="togglePanel(panel)"
-              >
-                <span>{{ panel }}</span>
-                <small v-if="openPanels.includes(panel)">已展开</small>
-              </button>
-            </div>
-
-            <div v-if="activePage.type === 'fineTuneExpand'" class="assistant-box">
-              <div class="assistant-icon">AI</div>
-              <p>Ai助手，我能为你做些什么?</p>
-            </div>
-          </template>
-
-          <template v-else-if="activePage.type === 'datasetManage'">
-            <div class="toolbar">
-              <button type="button" @click="selectPage(3)">新建数据集</button>
-              <button type="button" @click="selectPage(4)">导入文件</button>
-              <input v-model="keyword" class="toolbar-search" type="search" placeholder="请输入关键词" />
-            </div>
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th v-for="column in datasetColumns" :key="column">{{ column }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="row in filteredDatasetRows"
-                  :key="row[0]"
-                  :class="{ selected: selectedDataset === row[0] }"
-                  @click="chooseDataset(row)"
-                >
-                  <td v-for="cell in row" :key="cell">{{ cell }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </template>
-
-          <template v-else-if="activePage.type === 'datasetEmpty'">
-            <div class="two-column">
-              <aside class="side-form">
-                <label v-for="field in configFields.slice(0, 5)" :key="field.key" class="field">
-                  <span>{{ field.label }}</span>
-                  <button class="select-like" type="button" @click.stop="toggleDropdown('empty', field)">
-                    {{ field.value }}<img :src="selectArrow" alt="" />
-                  </button>
-                  <div v-if="openDropdown === dropdownKey('empty', field)" class="select-menu">
-                    <button v-for="option in field.options" :key="option" type="button" @click.stop="chooseOption(field, option)">
-                      {{ option }}
-                    </button>
-                  </div>
-                </label>
-              </aside>
-              <div class="empty-state">
-                <img :src="filePreview" alt="" />
-                <strong>暂无文件预览</strong>
-                <p>请选择数据来源并生成预训练数据集</p>
-                <button type="button" class="primary" @click="selectPage(4)">选择文件</button>
-              </div>
-            </div>
-          </template>
-
-          <template v-else-if="activePage.type === 'datasetPreview'">
-            <div class="two-column">
-              <aside class="side-form">
-                <label v-for="field in configFields.slice(0, 6)" :key="field.key" class="field">
-                  <span>{{ field.label }}</span>
-                  <button class="select-like" type="button" @click.stop="toggleDropdown('preview', field)">
-                    {{ field.value }}<img :src="selectArrow" alt="" />
-                  </button>
-                  <div v-if="openDropdown === dropdownKey('preview', field)" class="select-menu">
-                    <button v-for="option in field.options" :key="option" type="button" @click.stop="chooseOption(field, option)">
-                      {{ option }}
-                    </button>
-                  </div>
-                </label>
-              </aside>
-              <div class="preview-pane">
-                <div class="file-title">
-                  <img :src="filePreview" alt="" />
-                  <span>预训练数据预览</span>
-                </div>
-                <p v-for="line in previewLines" :key="line">{{ line }}</p>
-              </div>
-            </div>
-          </template>
-
-          <template v-else-if="activePage.type === 'datasetConfig'">
-            <div class="config-layout">
-              <div class="form-grid dense">
-                <label v-for="field in configFields" :key="field.key" class="field">
-                  <span>{{ field.label }}</span>
-                  <button class="select-like" type="button" @click.stop="toggleDropdown('config', field)">
-                    {{ field.value }}<img :src="selectArrow" alt="" />
-                  </button>
-                  <div v-if="openDropdown === dropdownKey('config', field)" class="select-menu">
-                    <button v-for="option in field.options" :key="option" type="button" @click.stop="chooseOption(field, option)">
-                      {{ option }}
-                    </button>
-                  </div>
-                </label>
-              </div>
-              <div class="rule-card">
-                <h3>规则配置</h3>
-                <label v-for="rule in ['去重过滤', '敏感词清洗', '自动补全标签']" :key="rule">
-                  <input
-                    type="checkbox"
-                    :checked="enabledRules.includes(rule)"
-                    @change="toggleRule(rule)"
-                  />
-                  {{ rule }}
-                </label>
-                <button type="button" class="primary" @click="createDatasetTask">创建任务</button>
-              </div>
-            </div>
-          </template>
-
-          <template v-else>
-            <div v-if="showTaskModal" class="modal-mask">
-              <div class="task-modal">
-                <h2>创建任务</h2>
-                <div class="step-line">
-                  <span v-for="step in taskSteps" :key="step">{{ step }}</span>
-                </div>
-                <label class="field">
-                  <span>任务名称</span>
-                  <div class="input-like">请输入</div>
-                </label>
-                <label class="field">
-                  <span>生成服务</span>
-                  <div class="input-like">预训练数据生成服务</div>
-                </label>
-                <div class="ready-row">
-                  <span class="ok-dot"></span>
-                  CSV文件已准备就绪
-                </div>
-                <div class="modal-actions">
-                  <button type="button" @click="showTaskModal = false">取消</button>
-                  <button type="button" class="primary" @click="showTaskModal = false">确定</button>
-                </div>
-              </div>
-            </div>
-            <div v-else class="empty-state">
-              <strong>任务已提交</strong>
-              <p>可返回数据集管理继续查看生成状态</p>
-              <button type="button" class="primary" @click="selectPage(2)">返回数据集管理</button>
-            </div>
-          </template>
+          <component
+            :is="activeComponent"
+            v-bind="activePageProps"
+            @toggle-dropdown="toggleDropdown"
+            @choose-option="chooseOption"
+            @select-tab="selectTab"
+            @toggle-panel="togglePanel"
+            @select-page="selectPage"
+            @choose-dataset="chooseDataset"
+            @update-keyword="updateKeyword"
+            @toggle-rule="toggleRule"
+            @create-task="createDatasetTask"
+            @close-modal="closeTaskModal"
+          />
         </section>
 
         <div class="action-bar">
