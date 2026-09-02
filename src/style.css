@@ -263,6 +263,103 @@ button {
   padding: 24px 12px 10px;
 }
 
+.figma-section {
+  margin: 8px 8px 0;
+  border: 1px solid rgba(28, 112, 178, 0.42);
+  border-radius: 4px;
+  background: rgba(1, 18, 38, 0.68);
+  box-shadow: inset 0 0 24px rgba(0, 119, 210, 0.12);
+}
+
+.base-config {
+  height: 166px;
+  padding: 10px 12px 8px;
+}
+
+.section-title {
+  height: 20px;
+  display: flex;
+  align-items: center;
+  color: #f0f8ff;
+  font-size: 14px;
+}
+
+.section-title::before {
+  content: "";
+  width: 3px;
+  height: 16px;
+  margin-right: 8px;
+  background: linear-gradient(180deg, #b8f7ff, #0b76ff);
+}
+
+.figma-form-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 196px);
+  justify-content: space-between;
+  gap: 8px 64px;
+  padding-top: 10px;
+}
+
+.train-config {
+  height: 230px;
+  padding: 14px 12px 12px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.train-grid {
+  grid-template-columns: repeat(5, 196px);
+  gap: 14px 64px;
+}
+
+.slider-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-top: 16px;
+}
+
+.slider-field {
+  color: #b4b8bd;
+  font-size: 12px;
+}
+
+.range-row {
+  height: 26px;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.range-row i {
+  position: relative;
+  flex: 1;
+  height: 4px;
+  background: rgba(125, 158, 189, 0.36);
+}
+
+.range-row i::after {
+  content: "";
+  position: absolute;
+  left: 42%;
+  top: -5px;
+  width: 4px;
+  height: 14px;
+  background: #ffffff;
+  box-shadow: 0 0 8px rgba(91, 201, 255, 0.7);
+}
+
+.range-row input {
+  width: 70px;
+  height: 28px;
+  border: 1px solid rgba(83, 90, 97, 0.5);
+  border-radius: 2px;
+  background: rgba(51, 52, 55, 0.4);
+  color: #d9dcde;
+  text-align: center;
+}
+
 .form-grid.dense {
   grid-template-columns: repeat(5, minmax(0, 1fr));
 }
@@ -279,6 +376,13 @@ button {
 
 .field > span {
   color: #c7def5;
+}
+
+.field small {
+  margin-left: 10px;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 12px;
+  font-weight: 400;
 }
 
 .select-like,
@@ -348,6 +452,13 @@ button {
   border-bottom: 1px solid rgba(74, 168, 255, 0.3);
 }
 
+.training-tabs {
+  margin-top: 6px;
+  border: 1px solid rgba(28, 112, 178, 0.42);
+  border-bottom: 0;
+  background: rgba(1, 12, 27, 0.82);
+}
+
 .tab-strip button {
   width: 119px;
   color: #cceaff;
@@ -364,6 +475,11 @@ button {
 .accordion-list {
   margin: 0 12px;
   padding-top: 10px;
+}
+
+.figma-accordion-list {
+  margin: 0 8px;
+  padding-top: 6px;
 }
 
 .accordion-row {

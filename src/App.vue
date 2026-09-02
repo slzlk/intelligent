@@ -58,16 +58,16 @@ const showTaskModal = ref(true)
 const enabledRules = ref(['去重过滤', '敏感词清洗'])
 
 const baseFields = ref([
-  { key: 'modelName', label: '模型名称', value: 'XXX大模型', options: ['XXX大模型', '防务推演大模型', '目标识别大模型'] },
-  { key: 'trainMode', label: '训练方式', value: '微调训练', options: ['微调训练', '全量训练', '增量训练'] },
-  { key: 'dataset', label: '训练数据集', value: '请选择内容', options: ['作战构想训练集', '防务快报语料', '态势推演样本'] },
-  { key: 'baseModel', label: '基础模型', value: '请选择内容', options: ['BMZY-7B', 'BMZY-13B', 'BMZY-32B'] },
-  { key: 'taskType', label: '任务类型', value: '请选择内容', options: ['指令微调', '领域适配', '能力增强'] },
-  { key: 'runtime', label: '执行环境', value: '请选择内容', options: ['GPU集群A', 'GPU集群B', '本地调试环境'] },
-  { key: 'sampleRate', label: '样本比例', value: '60', options: ['40', '60', '80', '100'] },
-  { key: 'epochs', label: '训练轮次', value: '8', options: ['3', '5', '8', '10'] },
-  { key: 'learningRate', label: '学习率', value: '0.0003', options: ['0.0001', '0.0003', '0.0005'] },
-  { key: 'savePolicy', label: '保存策略', value: '请选择内容', options: ['每轮保存', '最优保存', '最终保存'] },
+  { key: 'language', label: '语言', value: 'zh', options: ['zh', 'en'] },
+  { key: 'finetuneMethod', label: '微调方法', value: 'lora', options: ['lora', 'full', 'freeze'] },
+  { key: 'modelName', label: '模型名称', value: 'Deepseek-LLM-7B', options: ['Deepseek-LLM-7B', 'Qwen2.5-7B', 'Llama3-8B'] },
+  { key: 'modelPath', label: '模型路径', value: '请选择', options: ['请选择', '/models/deepseek-llm-7b', '/models/qwen2.5-7b'] },
+  { key: 'checkpointPath', label: '检查点路径', value: '请选择', options: ['请选择', '/checkpoints/latest', '/checkpoints/best'] },
+  { key: 'quantLevel', label: '量化等级', value: 'none', options: ['none', '8bit', '4bit'] },
+  { key: 'quantMethod', label: '量化方法', value: 'bnb', options: ['bnb', 'gptq', 'awq'] },
+  { key: 'chatTemplate', label: '对话模板', value: 'default', options: ['default', 'chatml', 'alpaca'] },
+  { key: 'ropeScale', label: 'RoPE插值方法', value: 'none', options: ['none', 'linear', 'dynamic'] },
+  { key: 'boostMethod', label: '加速方式', value: 'auto', options: ['auto', 'flash-attn', 'unsloth'] },
 ])
 
 const configFields = ref([
