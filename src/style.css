@@ -176,9 +176,57 @@ button {
   font-size: 12px;
 }
 
-.page-switcher,
+.page-switcher {
+  position: absolute;
+  z-index: 8;
+  top: 12px;
+  right: 16px;
+  display: flex;
+  gap: 6px;
+}
+
+.page-switcher button {
+  min-width: 44px;
+  height: 28px;
+  border: 1px solid rgba(77, 185, 255, 0.28);
+  border-radius: 2px;
+  background: rgba(3, 22, 46, 0.86);
+  color: rgba(217, 243, 255, 0.72);
+  cursor: pointer;
+}
+
+.page-switcher button.active,
+.page-switcher button:hover {
+  border-color: rgba(99, 216, 255, 0.78);
+  background: rgba(0, 119, 255, 0.38);
+  color: #ffffff;
+}
+
 .page-nav {
-  display: none;
+  position: absolute;
+  z-index: 9;
+  top: 50%;
+  width: 36px;
+  height: 64px;
+  border: 1px solid rgba(91, 202, 255, 0.32);
+  background: rgba(3, 22, 47, 0.78);
+  color: #bfeeff;
+  font-size: 34px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.page-nav:hover {
+  background: rgba(0, 119, 255, 0.38);
+  color: #ffffff;
+}
+
+.page-nav.prev {
+  left: 8px;
+}
+
+.page-nav.next {
+  right: 8px;
 }
 
 .content-card {
@@ -322,13 +370,17 @@ button {
 
 .accordion-row {
   height: 54px;
+  width: 100%;
   margin-bottom: 10px;
   display: flex;
   align-items: center;
   padding: 0 12px;
+  border-radius: 0;
   border: 1px solid rgba(55, 150, 226, 0.28);
   background: rgba(5, 23, 48, 0.78);
   color: #eef9ff;
+  text-align: left;
+  cursor: pointer;
 }
 
 .accordion-row::after {
@@ -336,6 +388,20 @@ button {
   margin-left: auto;
   color: #8bddff;
   font-size: 22px;
+}
+
+.accordion-row.open {
+  border-color: rgba(92, 208, 255, 0.55);
+  background: rgba(8, 51, 91, 0.82);
+}
+
+.accordion-row.open::after {
+  transform: rotate(90deg);
+}
+
+.accordion-row small {
+  margin-left: 12px;
+  color: rgba(151, 224, 255, 0.74);
 }
 
 .assistant-box {
@@ -388,6 +454,7 @@ button {
   border-radius: 2px;
   background: rgba(7, 41, 76, 0.9);
   color: #dff6ff;
+  cursor: pointer;
 }
 
 .toolbar button:first-child,
@@ -403,8 +470,16 @@ button {
   align-items: center;
   padding: 0 14px;
   border: 1px solid rgba(84, 183, 255, 0.3);
+  border-radius: 2px;
   background: rgba(4, 24, 50, 0.88);
   color: rgba(222, 244, 255, 0.72);
+  outline: none;
+}
+
+.toolbar-search:focus {
+  border-color: rgba(99, 216, 255, 0.78);
+  color: #ffffff;
+  box-shadow: 0 0 0 2px rgba(0, 166, 255, 0.16);
 }
 
 .data-table {
@@ -426,6 +501,19 @@ button {
 .data-table th {
   color: #9bdfff;
   background: rgba(6, 48, 86, 0.86);
+}
+
+.data-table tbody tr {
+  cursor: pointer;
+}
+
+.data-table tbody tr:hover,
+.data-table tbody tr.selected {
+  background: rgba(0, 117, 255, 0.2);
+}
+
+.data-table tbody tr.selected td:first-child {
+  color: #ffffff;
 }
 
 .two-column,
@@ -469,6 +557,15 @@ button {
   color: rgba(221, 242, 255, 0.58);
 }
 
+.empty-state button {
+  min-width: 140px;
+  height: 40px;
+  border: 1px solid rgba(84, 183, 255, 0.36);
+  border-radius: 2px;
+  color: #ffffff;
+  cursor: pointer;
+}
+
 .preview-pane {
   padding: 24px;
   font-size: 15px;
@@ -500,6 +597,21 @@ button {
 .rule-card label {
   display: block;
   margin: 16px 0;
+}
+
+.rule-card input {
+  margin-right: 8px;
+  accent-color: #00a6ff;
+}
+
+.rule-card button {
+  min-width: 120px;
+  height: 40px;
+  margin-top: 20px;
+  border: 1px solid rgba(84, 183, 255, 0.36);
+  border-radius: 2px;
+  color: #ffffff;
+  cursor: pointer;
 }
 
 .modal-mask {

@@ -33,6 +33,12 @@ const footerItems = [
 ]
 
 const openDropdown = ref('')
+const activeTab = ref(0)
+const openPanels = ref(['训练数据集配置'])
+const selectedDataset = ref('作战构想训练集')
+const keyword = ref('')
+const showTaskModal = ref(true)
+const enabledRules = ref(['去重过滤', '敏感词清洗'])
 
 const baseFields = ref([
   { key: 'modelName', label: '模型名称', value: 'XXX大模型', options: ['XXX大模型', '防务推演大模型', '目标识别大模型'] },
@@ -66,6 +72,12 @@ const datasetRows = [
   ['目标识别数据', '多模态', '6,230', '2026-08-25', '已生成', '预览'],
 ]
 
+const filteredDatasetRows = computed(() => {
+  const text = keyword.value.trim()
+  if (!text) return datasetRows
+  return datasetRows.filter((row) => row.join('').includes(text))
+})
+
 const previewLines = [
   '任务背景：根据当前作战构想，对多源情报、态势变化、目标特征进行语料抽取。',
   '数据目标：形成可用于预训练和指令微调的结构化文本片段。',
@@ -81,6 +93,10 @@ function go(delta) {
 
 function selectPage(index) {
   activeIndex.value = index
+  openDropdown.value = ''
+  if (pages[index].type === 'datasetTask') {
+    showTaskModal.value = true
+  }
 }
 
 function dropdownKey(group, field) {
@@ -96,10 +112,42 @@ function chooseOption(field, option) {
   field.value = option
   openDropdown.value = ''
 }
+
+function closeDropdown() {
+  openDropdown.value = ''
+}
+
+function selectTab(index) {
+  activeTab.value = index
+}
+
+function togglePanel(panel) {
+  if (openPanels.value.includes(panel)) {
+    openPanels.value = openPanels.value.filter((item) => item !== panel)
+    return
+  }
+  openPanels.value = [...openPanels.value, panel]
+}
+
+function chooseDataset(row) {
+  selectedDataset.value = row[0]
+}
+
+function toggleRule(rule) {
+  if (enabledRules.value.includes(rule)) {
+    enabledRules.value = enabledRules.value.filter((item) => item !== rule)
+    return
+  }
+  enabledRules.value = [...enabledRules.value, rule]
+}
+
+function createDatasetTask() {
+  selectPage(6)
+}
 </script>
 
 <template>
-  <main class="app-shell">
+  <main class="app-shell" @click="closeDropdown">
     <section class="stage">
       <header class="global-bar">
         <button class="brand-mark" type="button" aria-label="menu">⌘</button>
@@ -140,7 +188,7 @@ function chooseOption(field, option) {
             <div class="form-grid" :class="{ dense: activePage.type === 'fineTuneExpand' }">
               <label v-for="field in baseFields" :key="field.key" class="field">
                 <span>{{ field.label }}</span>
-                <button class="select-like" type="button" @click="toggleDropdown('base', field)">
+                <button class="select-like" type="button" @click.stop="toggleDropdown('base', field)">
                   {{ field.value }}
                   <img :src="selectArrow" alt="" />
                 </button>
@@ -149,7 +197,7 @@ function chooseOption(field, option) {
                     v-for="option in field.options"
                     :key="option"
                     type="button"
-                    @click="chooseOption(field, option)"
+                    @click.stop="chooseOption(field, option)"
                   >
                     {{ option }}
                   </button>
@@ -158,15 +206,29 @@ function chooseOption(field, option) {
             </div>
 
             <div class="tab-strip">
-              <button v-for="(tab, index) in topTabs" :key="tab" type="button" :class="{ active: index === 0 }">
+              <button
+                v-for="(tab, index) in topTabs"
+                :key="tab"
+                type="button"
+                :class="{ active: activeTab === index }"
+                @click="selectTab(index)"
+              >
                 {{ tab }}
               </button>
             </div>
 
             <div class="accordion-list">
-              <div class="accordion-row">训练数据集配置</div>
-              <div class="accordion-row">模型参数配置</div>
-              <div class="accordion-row">训练评估指标</div>
+              <button
+                v-for="panel in ['训练数据集配置', '模型参数配置', '训练评估指标']"
+                :key="panel"
+                class="accordion-row"
+                :class="{ open: openPanels.includes(panel) }"
+                type="button"
+                @click="togglePanel(panel)"
+              >
+                <span>{{ panel }}</span>
+                <small v-if="openPanels.includes(panel)">已展开</small>
+              </button>
             </div>
 
             <div v-if="activePage.type === 'fineTuneExpand'" class="assistant-box">
@@ -177,9 +239,9 @@ function chooseOption(field, option) {
 
           <template v-else-if="activePage.type === 'datasetManage'">
             <div class="toolbar">
-              <button type="button">新建数据集</button>
-              <button type="button">导入文件</button>
-              <div class="toolbar-search">请输入关键词</div>
+              <button type="button" @click="selectPage(3)">新建数据集</button>
+              <button type="button" @click="selectPage(4)">导入文件</button>
+              <input v-model="keyword" class="toolbar-search" type="search" placeholder="请输入关键词" />
             </div>
             <table class="data-table">
               <thead>
@@ -188,7 +250,12 @@ function chooseOption(field, option) {
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="row in datasetRows" :key="row[0]">
+                <tr
+                  v-for="row in filteredDatasetRows"
+                  :key="row[0]"
+                  :class="{ selected: selectedDataset === row[0] }"
+                  @click="chooseDataset(row)"
+                >
                   <td v-for="cell in row" :key="cell">{{ cell }}</td>
                 </tr>
               </tbody>
@@ -200,11 +267,11 @@ function chooseOption(field, option) {
               <aside class="side-form">
                 <label v-for="field in configFields.slice(0, 5)" :key="field.key" class="field">
                   <span>{{ field.label }}</span>
-                  <button class="select-like" type="button" @click="toggleDropdown('empty', field)">
+                  <button class="select-like" type="button" @click.stop="toggleDropdown('empty', field)">
                     {{ field.value }}<img :src="selectArrow" alt="" />
                   </button>
                   <div v-if="openDropdown === dropdownKey('empty', field)" class="select-menu">
-                    <button v-for="option in field.options" :key="option" type="button" @click="chooseOption(field, option)">
+                    <button v-for="option in field.options" :key="option" type="button" @click.stop="chooseOption(field, option)">
                       {{ option }}
                     </button>
                   </div>
@@ -214,6 +281,7 @@ function chooseOption(field, option) {
                 <img :src="filePreview" alt="" />
                 <strong>暂无文件预览</strong>
                 <p>请选择数据来源并生成预训练数据集</p>
+                <button type="button" class="primary" @click="selectPage(4)">选择文件</button>
               </div>
             </div>
           </template>
@@ -223,11 +291,11 @@ function chooseOption(field, option) {
               <aside class="side-form">
                 <label v-for="field in configFields.slice(0, 6)" :key="field.key" class="field">
                   <span>{{ field.label }}</span>
-                  <button class="select-like" type="button" @click="toggleDropdown('preview', field)">
+                  <button class="select-like" type="button" @click.stop="toggleDropdown('preview', field)">
                     {{ field.value }}<img :src="selectArrow" alt="" />
                   </button>
                   <div v-if="openDropdown === dropdownKey('preview', field)" class="select-menu">
-                    <button v-for="option in field.options" :key="option" type="button" @click="chooseOption(field, option)">
+                    <button v-for="option in field.options" :key="option" type="button" @click.stop="chooseOption(field, option)">
                       {{ option }}
                     </button>
                   </div>
@@ -248,11 +316,11 @@ function chooseOption(field, option) {
               <div class="form-grid dense">
                 <label v-for="field in configFields" :key="field.key" class="field">
                   <span>{{ field.label }}</span>
-                  <button class="select-like" type="button" @click="toggleDropdown('config', field)">
+                  <button class="select-like" type="button" @click.stop="toggleDropdown('config', field)">
                     {{ field.value }}<img :src="selectArrow" alt="" />
                   </button>
                   <div v-if="openDropdown === dropdownKey('config', field)" class="select-menu">
-                    <button v-for="option in field.options" :key="option" type="button" @click="chooseOption(field, option)">
+                    <button v-for="option in field.options" :key="option" type="button" @click.stop="chooseOption(field, option)">
                       {{ option }}
                     </button>
                   </div>
@@ -260,15 +328,21 @@ function chooseOption(field, option) {
               </div>
               <div class="rule-card">
                 <h3>规则配置</h3>
-                <label><input type="checkbox" checked /> 去重过滤</label>
-                <label><input type="checkbox" checked /> 敏感词清洗</label>
-                <label><input type="checkbox" /> 自动补全标签</label>
+                <label v-for="rule in ['去重过滤', '敏感词清洗', '自动补全标签']" :key="rule">
+                  <input
+                    type="checkbox"
+                    :checked="enabledRules.includes(rule)"
+                    @change="toggleRule(rule)"
+                  />
+                  {{ rule }}
+                </label>
+                <button type="button" class="primary" @click="createDatasetTask">创建任务</button>
               </div>
             </div>
           </template>
 
           <template v-else>
-            <div class="modal-mask">
+            <div v-if="showTaskModal" class="modal-mask">
               <div class="task-modal">
                 <h2>创建任务</h2>
                 <div class="step-line">
@@ -287,10 +361,15 @@ function chooseOption(field, option) {
                   CSV文件已准备就绪
                 </div>
                 <div class="modal-actions">
-                  <button type="button">取消</button>
-                  <button type="button" class="primary">确定</button>
+                  <button type="button" @click="showTaskModal = false">取消</button>
+                  <button type="button" class="primary" @click="showTaskModal = false">确定</button>
                 </div>
               </div>
+            </div>
+            <div v-else class="empty-state">
+              <strong>任务已提交</strong>
+              <p>可返回数据集管理继续查看生成状态</p>
+              <button type="button" class="primary" @click="selectPage(2)">返回数据集管理</button>
             </div>
           </template>
         </section>
@@ -301,16 +380,16 @@ function chooseOption(field, option) {
             <strong>XXX大模型</strong>
             <div><i></i></div>
           </div>
-          <button type="button">取消</button>
-          <button type="button">取消</button>
-          <button type="button" class="primary">确定</button>
+          <button type="button" @click="go(-1)">上一步</button>
+          <button type="button" @click="go(1)">下一步</button>
+          <button type="button" class="primary" @click="createDatasetTask">确定</button>
         </div>
       </div>
 
       <footer class="dock">
         <img class="orb" :src="bottomOrb" alt="" />
         <nav>
-          <button v-for="item in footerItems" :key="item.label" type="button">
+          <button v-for="(item, index) in footerItems" :key="item.label" type="button" @click="selectPage(index < 3 ? index : 2)">
             <img :src="item.icon" alt="" />
             <span>{{ item.label }}</span>
           </button>
