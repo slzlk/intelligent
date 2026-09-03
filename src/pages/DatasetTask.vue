@@ -1,10 +1,12 @@
 <script setup>
 defineProps({
   showTaskModal: Boolean,
+  taskName: String,
+  serviceName: String,
   taskSteps: Array,
 })
 
-defineEmits(['close-modal', 'select-page'])
+defineEmits(['update-task-name', 'update-service-name', 'close-modal', 'select-page'])
 </script>
 
 <template>
@@ -16,11 +18,22 @@ defineEmits(['close-modal', 'select-page'])
       </div>
       <label class="field">
         <span>任务名称</span>
-        <div class="input-like">请输入</div>
+        <input
+          :value="taskName"
+          class="input-like"
+          type="text"
+          placeholder="请输入"
+          @input="$emit('update-task-name', $event.target.value)"
+        />
       </label>
       <label class="field">
         <span>生成服务</span>
-        <div class="input-like">预训练数据生成服务</div>
+        <input
+          class="input-like"
+          type="text"
+          :value="serviceName"
+          @input="$emit('update-service-name', $event.target.value)"
+        />
       </label>
       <div class="ready-row">
         <span class="ok-dot"></span>

@@ -1,0 +1,21 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Checkbox" clip-path="url(#clip0_0_4519)">
+<g id="&#230;&#156;&#170;&#233;&#128;&#137;,normal">
+<path d="M0 2C0 0.895431 0.895431 0 2 0H14C15.1046 0 16 0.895431 16 2V14C16 15.1046 15.1046 16 14 16H2C0.895431 16 0 15.1046 0 14V2Z" fill="#1E242A" fill-opacity="0.6"/>
+<path d="M2 0.5H14C14.8284 0.5 15.5 1.17157 15.5 2V14C15.5 14.8284 14.8284 15.5 14 15.5H2C1.17157 15.5 0.5 14.8284 0.5 14V2C0.5 1.17157 1.17157 0.5 2 0.5Z" stroke="#B1B6BC" stroke-opacity="0.298039"/>
+</g>
+<mask id="mask0_0_4519" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="16" height="16">
+<g id="&#230;&#156;&#170;&#233;&#128;&#137;,normal_2">
+<path d="M0 2C0 0.895431 0.895431 0 2 0H14C15.1046 0 16 0.895431 16 2V14C16 15.1046 15.1046 16 14 16H2C0.895431 16 0 15.1046 0 14V2Z" fill="white"/>
+<path d="M2 0.5H14C14.8284 0.5 15.5 1.17157 15.5 2V14C15.5 14.8284 14.8284 15.5 14 15.5H2C1.17157 15.5 0.5 14.8284 0.5 14V2C0.5 1.17157 1.17157 0.5 2 0.5Z" stroke="white"/>
+</g>
+</mask>
+<g mask="url(#mask0_0_4519)">
+</g>
+</g>
+<defs>
+<clipPath id="clip0_0_4519">
+<rect width="16" height="16" fill="white"/>
+</clipPath>
+</defs>
+</svg>
