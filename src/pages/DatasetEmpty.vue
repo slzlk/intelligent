@@ -6,9 +6,23 @@ import settingIcon from '../assets/image/figma-dataset-top-setting.svg'
 import titleMarker from '../assets/image/figma-dataset-title-marker.svg'
 import uploadEmpty from '../assets/image/figma-dataset-upload-empty.png'
 
+const emit = defineEmits(['select-page', 'select-uploaded-file'])
+
 const rpm = ref('1000')
 const tpm = ref('50000')
+const uploadInput = ref(null)
 const files = ['txt_demo.txt', 'jsonl_demo.jsonl', 'json_demo.json', 'csv_demo.csv']
+
+function openUpload() {
+  uploadInput.value?.click()
+}
+
+function handleUpload(event) {
+  const file = event.target.files?.[0]
+  if (file) {
+    emit('select-uploaded-file', file.name)
+  }
+}
 </script>
 
 <template>
@@ -28,9 +42,10 @@ const files = ['txt_demo.txt', 'jsonl_demo.jsonl', 'json_demo.json', 'csv_demo.c
         <span>预训练数据集生成</span>
       </div>
 
-      <button class="generate-upload" type="button" aria-label="点击/拖拽上传文件">
+      <button class="generate-upload" type="button" aria-label="点击/拖拽上传文件" @click="openUpload">
         <img :src="uploadEmpty" alt="" />
       </button>
+      <input ref="uploadInput" class="generate-upload-input" type="file" accept=".txt,.pdf,.docx,.jsonl,.json,.csv" @change="handleUpload" />
 
       <div class="generate-slider rpm">
         <label>RPM</label>
@@ -63,8 +78,8 @@ const files = ['txt_demo.txt', 'jsonl_demo.jsonl', 'json_demo.json', 'csv_demo.c
       </div>
 
       <div class="generate-panel-actions">
-        <button class="generate-secondary" type="button">取消</button>
-        <button class="generate-primary" type="button">
+        <button class="generate-secondary" type="button" @click="$emit('select-page', 2)">取消</button>
+        <button class="generate-primary" type="button" @click="$emit('select-page', 5)">
           <img :src="generateIcon" alt="" />
           生成数据集
         </button>

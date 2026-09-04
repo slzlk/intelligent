@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import clearIcon from '../assets/image/figma-dataset-file-clear.svg'
 import eyeIcon from '../assets/image/figma-dataset-file-eye.svg'
 import copyIcon from '../assets/image/figma-dataset-preview-copy.svg'
@@ -9,8 +9,16 @@ import settingIcon from '../assets/image/figma-dataset-top-setting.svg'
 import titleMarker from '../assets/image/figma-dataset-title-marker.svg'
 import uploadEmpty from '../assets/image/figma-dataset-upload-empty.png'
 
+const props = defineProps({
+  fileName: String,
+})
+
+defineEmits(['select-page'])
+
 const rpm = ref('1000')
 const tpm = ref('50000')
+const uploadInput = ref(null)
+const currentFile = ref('txt_demo.txt')
 const files = ['txt_demo.txt', 'jsonl_demo.jsonl', 'json_demo.json', 'csv_demo.csv']
 const previewRows = [
   ['001', '云南省农业科学院粮食作物研究所于2005年育成早熟品种云米更26号。该品种外观特点为：颗尖无色、无芒，谷壳黄色，落粒性适中，米粒大。'],
@@ -23,6 +31,29 @@ const previewRows = [
   ['008', '云南省农业科学院粮食作物研究所于2005年育成早熟品种云米更26号。该品种外观特点为：颗尖无色、无芒，谷壳黄色，落粒性适中，米粒大。'],
   ['009', '云南省农业科学院粮食作物研究所于2005年育成早熟品种云米更26号。'],
 ]
+
+watch(
+  () => props.fileName,
+  (fileName) => {
+    currentFile.value = fileName || 'txt_demo.txt'
+  },
+  { immediate: true },
+)
+
+function openUpload() {
+  uploadInput.value?.click()
+}
+
+function handleUpload(event) {
+  const file = event.target.files?.[0]
+  if (file) {
+    currentFile.value = file.name
+  }
+}
+
+function clearFile() {
+  currentFile.value = ''
+}
 </script>
 
 <template>
@@ -42,15 +73,16 @@ const previewRows = [
         <span>预训练数据集生成</span>
       </div>
 
-      <button class="generate-upload" type="button" aria-label="点击/拖拽上传文件">
+      <button class="generate-upload" type="button" aria-label="点击/拖拽上传文件" @click="openUpload">
         <img :src="uploadEmpty" alt="" />
       </button>
+      <input ref="uploadInput" class="generate-upload-input" type="file" accept=".txt,.pdf,.docx,.jsonl,.json,.csv" @change="handleUpload" />
 
       <div class="generate-file-card">
         <div class="generate-file-icon">txt</div>
-        <a href="#" @click.prevent>txt_demo.txt</a>
+        <a href="#" @click.prevent>{{ currentFile || 'txt_demo.txt' }}</a>
         <button type="button" aria-label="预览文件"><img :src="eyeIcon" alt="" /></button>
-        <button type="button" aria-label="清理文件"><img :src="clearIcon" alt="" /></button>
+        <button type="button" aria-label="清理文件" @click="clearFile"><img :src="clearIcon" alt="" /></button>
       </div>
 
       <div class="generate-slider rpm">
@@ -84,8 +116,8 @@ const previewRows = [
       </div>
 
       <div class="generate-panel-actions">
-        <button class="generate-secondary" type="button">取消</button>
-        <button class="generate-primary" type="button">
+        <button class="generate-secondary" type="button" @click="$emit('select-page', 2)">取消</button>
+        <button class="generate-primary" type="button" @click="$emit('select-page', 5)">
           <img :src="generateIcon" alt="" />
           生成数据集
         </button>

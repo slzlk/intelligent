@@ -116,6 +116,26 @@ input {
   font-size: 14px;
 }
 
+.breadcrumbs button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.breadcrumbs button:hover,
+.breadcrumbs button:focus-visible {
+  color: #ffffff;
+  outline: none;
+}
+
+.breadcrumbs button:disabled {
+  color: rgba(207, 236, 255, 0.4);
+  cursor: default;
+}
+
 .breadcrumbs strong {
   color: #ffffff;
 }
@@ -778,7 +798,7 @@ input {
 .dataset-plain-button {
   position: absolute;
   top: 0;
-  width: 160px;
+  width: 168px;
   height: 40px;
   font-size: 14px;
 }
@@ -791,7 +811,7 @@ input {
 }
 
 .dataset-plain-button {
-  left: 172px;
+  left: 180px;
   border: 1px solid rgba(84, 183, 255, 0.36);
   color: #d9dcde;
   background: rgba(70, 78, 92, 0.5);
@@ -799,20 +819,25 @@ input {
 
 .dataset-search {
   position: absolute;
-  right: 347px;
+  right: 371px;
   top: 1px;
-  width: 380px;
+  width: min(380px, calc(100% - 732px));
+  min-width: 260px;
   height: 40px;
 }
 
 .dataset-search input,
 .dataset-page-jump input {
+  min-width: 0;
   width: 100%;
   height: 100%;
   border: 1px solid rgba(83, 90, 97, 0.5);
   background: rgba(51, 52, 55, 0.4);
   color: #d9dcde;
   outline: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .dataset-search input {
@@ -826,10 +851,21 @@ input {
   color: #b4b8bd;
 }
 
-.dataset-search img {
+.dataset-search button {
   position: absolute;
-  right: 12px;
-  top: 12px;
+  right: 0;
+  top: 0;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.dataset-search img {
   width: 16px;
   height: 16px;
   pointer-events: none;
@@ -837,7 +873,7 @@ input {
 
 .dataset-icon-button {
   position: absolute;
-  right: 295px;
+  right: 315px;
   top: 1px;
   width: 40px;
   height: 40px;
@@ -873,6 +909,7 @@ input {
   background: transparent;
   color: #b4b8bd;
   font-size: 14px;
+  cursor: pointer;
 }
 
 .dataset-mode-tabs button:first-child {
@@ -881,8 +918,9 @@ input {
 }
 
 .dataset-mode-tabs button:last-child {
-  right: 17px;
-  width: 98px;
+  right: 4px;
+  width: 130px;
+  white-space: nowrap;
 }
 
 .dataset-mode-tabs button.active {
@@ -919,11 +957,41 @@ input {
   background: rgba(38, 62, 82, 0.2);
   color: #b4b8bd;
   font-size: 14px;
+  cursor: pointer;
 }
 
-.dataset-check-button img {
+.dataset-check-button.active {
+  color: #d9dcde;
+  border-color: rgba(106, 210, 255, 0.6);
+  background: rgba(38, 94, 126, 0.36);
+}
+
+.dataset-checkbox {
+  position: relative;
   width: 16px;
   height: 16px;
+  display: block;
+  flex: 0 0 16px;
+  border: 1px solid rgba(177, 182, 188, 0.42);
+  border-radius: 2px;
+  background: rgba(30, 36, 42, 0.6);
+}
+
+.dataset-checkbox.checked {
+  border-color: rgba(217, 220, 222, 0.9);
+  background: rgba(64, 70, 77, 0.75);
+}
+
+.dataset-checkbox.checked::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 5px;
+  height: 9px;
+  border-right: 2px solid #d9dcde;
+  border-bottom: 2px solid #d9dcde;
+  transform: rotate(45deg);
 }
 
 .dataset-delete-selected {
@@ -943,26 +1011,36 @@ input {
   left: 11px;
   right: 11px;
   top: 200px;
-  height: 635px;
+  bottom: 98px;
   display: grid;
-  grid-template-columns: repeat(5, 368px);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   column-gap: 10px;
 }
 
 .dataset-card {
   position: relative;
-  height: 635px;
+  height: 100%;
+  min-width: 0;
   overflow: hidden;
   border: 1px solid rgba(201, 225, 255, 0.16);
   border-radius: 6px;
   background: linear-gradient(180deg, rgba(172, 192, 202, 0.16), rgba(95, 128, 143, 0.04));
 }
 
+.dataset-card.selected {
+  border-color: rgba(106, 210, 255, 0.58);
+  box-shadow: inset 0 0 0 1px rgba(106, 210, 255, 0.2), 0 0 18px rgba(0, 132, 255, 0.12);
+}
+
+.dataset-card.editing .dataset-card-summary {
+  border-color: rgba(223, 246, 255, 0.83);
+}
+
 .dataset-card-summary {
   position: absolute;
   left: 8px;
+  right: 8px;
   top: 13px;
-  width: 349px;
   height: 138px;
   padding: 12px 12px 0;
   border: 1px solid #6ad2ff;
@@ -979,9 +1057,18 @@ input {
   height: 22px;
 }
 
-.dataset-card-key img {
+.dataset-card-check {
   width: 16px;
   height: 16px;
+  display: block;
+  flex: 0 0 16px;
+  cursor: pointer;
+}
+
+.dataset-card-check input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .dataset-card-key strong {
@@ -1015,7 +1102,7 @@ input {
 
 .dataset-card-summary p {
   margin: 16px 0 0;
-  width: 326px;
+  width: 100%;
   color: #ffffff;
   font-size: 16px;
   line-height: 22px;
@@ -1060,12 +1147,33 @@ input {
 }
 
 .dataset-metric strong {
-  max-width: 228px;
+  max-width: min(58%, 228px);
   color: #e1edff;
   font-size: 16px;
   line-height: 22px;
   text-align: right;
   word-break: break-all;
+}
+
+.dataset-inline-input {
+  min-width: 0;
+  width: min(58%, 228px);
+  height: 28px;
+  border: 1px solid rgba(83, 90, 97, 0.62);
+  border-radius: 4px;
+  background: rgba(51, 52, 55, 0.42);
+  color: #e1edff;
+  padding: 0 8px;
+  font-size: 16px;
+  text-align: right;
+  outline: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dataset-inline-input:focus {
+  border-color: rgba(106, 210, 255, 0.72);
 }
 
 .dataset-card::after {
@@ -1084,11 +1192,13 @@ input {
   right: 18px;
   bottom: 16px;
   display: flex;
+  gap: 8px;
   justify-content: space-between;
 }
 
 .dataset-card-actions button {
-  width: 100px;
+  flex: 1 1 0;
+  min-width: 0;
   height: 44px;
   border: 1px solid rgba(139, 145, 152, 0.3);
   background: rgba(70, 78, 92, 0.5);
@@ -1099,7 +1209,7 @@ input {
 .dataset-pagination {
   position: absolute;
   right: 27px;
-  top: 867px;
+  bottom: 9px;
   width: 821px;
   height: 57px;
   display: flex;
@@ -1122,6 +1232,7 @@ input {
   background: rgba(51, 52, 55, 0.4);
   color: #b4b8bd;
   font-size: 16px;
+  cursor: pointer;
 }
 
 .dataset-page-size::after {
@@ -1140,6 +1251,7 @@ input {
   height: 40px;
   border: 0;
   background: transparent;
+  cursor: pointer;
 }
 
 .dataset-page-arrow::before {
@@ -1160,6 +1272,14 @@ input {
   border-top: 1px solid #b4b8bd;
 }
 
+.dataset-page-arrow:disabled {
+  cursor: default;
+}
+
+.dataset-page-arrow:disabled::before {
+  border-color: #4f5965;
+}
+
 .dataset-page-number {
   width: 40px;
   height: 40px;
@@ -1167,6 +1287,7 @@ input {
   background: transparent;
   color: #b4b8bd;
   font-size: 12px;
+  cursor: pointer;
 }
 
 .dataset-page-number.active {
@@ -1194,6 +1315,217 @@ input {
   border-radius: 0;
   padding: 0 11px;
   font-size: 16px;
+}
+
+@media (max-width: 1500px), (max-height: 850px) {
+  .dataset-filter-row {
+    top: 52px;
+  }
+
+  .dataset-primary-button,
+  .dataset-plain-button,
+  .dataset-delete-selected {
+    width: 140px;
+    font-size: 13px;
+  }
+
+  .dataset-plain-button {
+    left: 152px;
+  }
+
+  .dataset-search {
+    right: 359px;
+    width: min(320px, calc(100% - 665px));
+    min-width: 220px;
+  }
+
+  .dataset-icon-button {
+    right: 307px;
+  }
+
+  .dataset-mode-tabs button {
+    font-size: 13px;
+  }
+
+  .dataset-mode-tabs button:first-child,
+  .dataset-mode-tabs button:last-child {
+    width: 130px;
+    white-space: nowrap;
+  }
+
+  .dataset-mode-tabs button:first-child {
+    left: 4px;
+  }
+
+  .dataset-mode-tabs button:last-child {
+    right: 4px;
+  }
+
+  .dataset-divider {
+    top: 108px;
+  }
+
+  .dataset-bulk-row {
+    top: 124px;
+  }
+
+  .dataset-card-grid {
+    top: 168px;
+    bottom: 66px;
+    column-gap: 8px;
+  }
+
+  .dataset-card-summary {
+    left: 6px;
+    right: 6px;
+    top: 8px;
+    height: 96px;
+    padding: 9px 10px 0;
+  }
+
+  .dataset-card-key {
+    height: 20px;
+  }
+
+  .dataset-card-key img {
+    width: 14px;
+    height: 14px;
+  }
+
+  .dataset-card-check,
+  .dataset-checkbox {
+    width: 14px;
+    height: 14px;
+    flex-basis: 14px;
+  }
+
+  .dataset-checkbox.checked::after {
+    left: 3px;
+    top: 0;
+  }
+
+  .dataset-card-key strong,
+  .dataset-card-summary p,
+  .dataset-metric-label,
+  .dataset-metric strong {
+    font-size: 12px;
+  }
+
+  .dataset-card-tag {
+    right: 8px;
+    top: 8px;
+    width: 64px;
+    height: 24px;
+    font-size: 12px;
+  }
+
+  .dataset-card-tag img {
+    width: 64px;
+    height: 24px;
+  }
+
+  .dataset-card-summary p {
+    display: -webkit-box;
+    margin-top: 8px;
+    overflow: hidden;
+    line-height: 17px;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+
+  .dataset-card-metrics {
+    left: 10px;
+    right: 10px;
+    top: 116px;
+  }
+
+  .dataset-metric {
+    height: 26px;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+    border-bottom-width: 1px;
+  }
+
+  .dataset-metric.wide {
+    height: 42px;
+  }
+
+  .dataset-metric-label {
+    gap: 5px;
+    line-height: 20px;
+  }
+
+  .dataset-metric-label img {
+    width: 20px;
+    height: 20px;
+  }
+
+  .dataset-metric strong {
+    max-width: 52%;
+    overflow: hidden;
+    line-height: 18px;
+    text-overflow: ellipsis;
+  }
+
+  .dataset-inline-input {
+    width: 52%;
+    height: 24px;
+    font-size: 12px;
+  }
+
+  .dataset-metric.wide strong {
+    display: -webkit-box;
+    text-align: right;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .dataset-card::after {
+    left: 12px;
+    right: 12px;
+    bottom: 52px;
+  }
+
+  .dataset-card-actions {
+    left: 10px;
+    right: 10px;
+    bottom: 8px;
+    gap: 6px;
+  }
+
+  .dataset-card-actions button {
+    height: 34px;
+    font-size: 12px;
+  }
+
+  .dataset-pagination {
+    right: 11px;
+    bottom: 0;
+    width: min(821px, calc(100% - 22px));
+    height: 48px;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .dataset-page-size {
+    width: 96px;
+    font-size: 14px;
+  }
+
+  .dataset-page-arrow,
+  .dataset-page-number {
+    width: 32px;
+    height: 40px;
+  }
+
+  .dataset-page-jump {
+    gap: 6px;
+  }
+
+  .dataset-page-jump input {
+    width: 82px;
+    font-size: 14px;
+  }
 }
 
 .dataset-generate-page {
@@ -1323,6 +1655,17 @@ input {
   width: 620px;
   height: 200px;
   display: block;
+}
+
+.generate-upload-input,
+.task-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
 }
 
 .generate-slider {
@@ -1502,9 +1845,13 @@ input {
 
 .generate-file-card a {
   margin-left: 21px;
+  max-width: 420px;
+  overflow: hidden;
   color: #66aaff;
   font-size: 14px;
   text-decoration: underline;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .generate-file-card button {
@@ -2073,52 +2420,6 @@ input {
   cursor: pointer;
 }
 
-.modal-mask {
-  height: calc(100% - 42px);
-  display: grid;
-  place-items: center;
-  background: rgba(0, 6, 16, 0.58);
-}
-
-.task-modal {
-  width: 760px;
-  min-height: 520px;
-  padding: 28px 32px;
-  border: 1px solid rgba(97, 192, 255, 0.3);
-  background: rgba(5, 24, 48, 0.96);
-}
-
-.step-line {
-  display: flex;
-  justify-content: space-between;
-  margin: 28px 0;
-  color: #99dfff;
-}
-
-.ready-row {
-  height: 48px;
-  margin-top: 20px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 0 16px;
-  background: rgba(4, 41, 76, 0.72);
-}
-
-.ok-dot {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #27d890;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 16px;
-  margin-top: 40px;
-}
-
 .action-bar {
   position: absolute;
   left: 12px;
@@ -2241,4 +2542,322 @@ input {
   width: 56px;
   height: 72px;
   object-fit: contain;
+}
+
+.task-creation-page {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  min-width: 1280px;
+  overflow: hidden;
+  color: #d9dcde;
+  background:
+    radial-gradient(ellipse at 27% 19%, rgba(0, 125, 255, 0.16), transparent 18%),
+    radial-gradient(ellipse at 82% 22%, rgba(1, 159, 255, 0.18), transparent 18%),
+    linear-gradient(180deg, rgba(7, 36, 74, 0.92) 0%, rgba(1, 10, 25, 0.98) 100%);
+}
+
+.task-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.52);
+}
+
+.task-window {
+  position: absolute;
+  left: 578px;
+  top: 159px;
+  width: 764px;
+  height: 762px;
+  overflow: visible;
+  border: 1px solid rgba(65, 78, 95, 0.72);
+  border-radius: 6px;
+  background: rgba(12, 18, 29, 0.98);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.task-title-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1020px;
+  height: 48px;
+  border-radius: 6px 6px 0 0;
+  background: rgba(24, 31, 45, 0.98);
+}
+
+.task-title-bar h1 {
+  position: absolute;
+  left: 20px;
+  top: 12px;
+  margin: 0;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 22.4px;
+}
+
+.task-window-control {
+  position: absolute;
+  left: 972px;
+  top: 10px;
+  width: 1px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.task-form {
+  position: absolute;
+  inset: 0;
+}
+
+.task-type-field {
+  position: absolute;
+  left: 24px;
+  top: 72px;
+  width: 166px;
+  height: 51px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.task-type-field legend,
+.task-field > span {
+  display: block;
+  color: #b4b8bd;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.task-radio {
+  position: absolute;
+  top: 31px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  color: #d9dcde;
+  font-size: 14px;
+  line-height: 19.6px;
+  cursor: pointer;
+}
+
+.task-radio:first-of-type {
+  left: 0;
+  width: 80px;
+}
+
+.task-radio:last-of-type {
+  left: 100px;
+  width: 66px;
+}
+
+.task-radio input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.task-radio img {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  flex: 0 0 16px;
+}
+
+.task-field {
+  position: absolute;
+  left: 24px;
+  width: 716px;
+  height: 71px;
+}
+
+.task-file-field {
+  top: 143px;
+}
+
+.task-name-field {
+  top: 260px;
+}
+
+.task-chunk-field {
+  top: 351px;
+}
+
+.task-field input[type="text"],
+.task-number {
+  position: absolute;
+  left: 0;
+  top: 31px;
+  height: 40px;
+  border: 1px solid rgba(83, 90, 97, 0.5);
+  border-radius: 6px;
+  background: rgba(51, 52, 55, 0.4);
+  color: #b4b8bd;
+  font-size: 16px;
+  line-height: 22.4px;
+  outline: none;
+}
+
+.task-field input[type="text"] {
+  width: 660px;
+  padding: 0 12px;
+}
+
+.task-number {
+  width: 181px;
+  padding: 0 38px 0 12px;
+}
+
+.task-field input:focus {
+  border-color: rgba(180, 216, 235, 0.72);
+  color: #d9dcde;
+}
+
+.task-file-field button {
+  position: absolute;
+  left: 546px;
+  top: 31px;
+  width: 160px;
+  height: 44px;
+  border: 1px solid rgba(139, 145, 152, 0.3);
+  border-radius: 6px;
+  background: rgba(70, 78, 92, 0.5);
+  color: #d9dcde;
+  font-size: 14px;
+  cursor: pointer;
+  backdrop-filter: blur(5px);
+}
+
+.task-help {
+  position: absolute;
+  left: 24px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 12px;
+  line-height: 24px;
+}
+
+.file-help {
+  top: 224px;
+  width: 375px;
+}
+
+.chunk-help {
+  top: 432px;
+  width: 507px;
+}
+
+.task-range {
+  position: absolute;
+  left: 170px;
+  top: 43px;
+  width: 546px;
+  height: 16px;
+  margin: 0;
+  padding: 0;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.task-range::-webkit-slider-runnable-track {
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #d9dcde 0 46%, rgba(32, 38, 45, 0.96) 46% 100%);
+}
+
+.task-range::-webkit-slider-thumb {
+  width: 4px;
+  height: 16px;
+  margin-top: -3px;
+  appearance: none;
+  border-radius: 2px;
+  background: #d9dcde;
+}
+
+.task-range::-moz-range-track {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(32, 38, 45, 0.96);
+}
+
+.task-range::-moz-range-progress {
+  height: 10px;
+  border-radius: 999px;
+  background: #d9dcde;
+}
+
+.task-range::-moz-range-thumb {
+  width: 4px;
+  height: 16px;
+  border: 0;
+  border-radius: 2px;
+  background: #d9dcde;
+}
+
+.task-ready-row {
+  position: absolute;
+  left: 24px;
+  top: 468px;
+  width: 716px;
+  height: 48px;
+}
+
+.task-ready-bg {
+  position: absolute;
+  inset: 0;
+  width: 716px;
+  height: 48px;
+}
+
+.task-ready-check {
+  position: absolute;
+  left: -4px;
+  top: -8px;
+  width: 64px;
+  height: 64px;
+}
+
+.task-ready-row span {
+  position: absolute;
+  left: 64px;
+  top: 14px;
+  color: #d9dcde;
+  font-size: 14px;
+  line-height: 20.6px;
+}
+
+.task-actions {
+  position: absolute;
+  left: 403px;
+  top: 702px;
+  width: 337px;
+  height: 40px;
+}
+
+.task-actions button {
+  position: absolute;
+  top: 0;
+  width: 160px;
+  height: 40px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.task-cancel {
+  left: 0;
+  border: 1px solid rgba(139, 145, 152, 0.3);
+  background: rgba(70, 78, 92, 0.5);
+  color: #d9dcde;
+  backdrop-filter: blur(5px);
+}
+
+.task-submit {
+  left: 177px;
+  border: 1px solid rgba(223, 246, 255, 0.83);
+  background: linear-gradient(168deg, #57cffe 7.7%, #2740f9 66.87%);
+  color: #ffffff;
 }

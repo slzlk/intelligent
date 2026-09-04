@@ -7,7 +7,6 @@ import figmaStatusBg from './assets/image/figma-status-bg.svg'
 import figmaStatusCheck from './assets/image/figma-status-check.svg'
 import figmaStopIcon from './assets/image/figma-stop-icon.svg'
 import figmaTitleAction from './assets/image/figma-title-action.svg'
-import filePreview from './assets/image/file-preview.png'
 import navDataset from './assets/image/nav-dataset.png'
 import navModeling from './assets/image/nav-modeling.png'
 import navScenario from './assets/image/nav-scenario.png'
@@ -36,8 +35,12 @@ const requestedPage = new URLSearchParams(window.location.search).get('page')
 const requestedIndex = pages.findIndex((page) => page.id === requestedPage || page.type === requestedPage)
 const activeIndex = ref(requestedIndex >= 0 ? requestedIndex : 0)
 const activePage = computed(() => pages[activeIndex.value])
-const activeTitle = computed(() => `${activePage.value.code} ${activePage.value.title}`)
+const breadcrumbItems = computed(() => [
+  { label: '上级页面', targetIndex: activeIndex.value - 2 },
+  { label: '上级页面', targetIndex: activeIndex.value - 1 },
+])
 const isFineTunePage = computed(() => activePage.value.type === 'fineTuneBase' || activePage.value.type === 'fineTuneExpand')
+const isTaskPage = computed(() => activePage.value.type === 'datasetTask')
 const pageComponents = {
   fineTuneBase: FineTuneBase,
   fineTuneExpand: FineTuneExpand,
@@ -70,10 +73,7 @@ const activeTab = ref(0)
 const openPanels = ref(['训练数据集配置'])
 const keyword = ref('')
 const pageJump = ref('')
-const taskName = ref('')
-const serviceName = ref('预训练数据生成服务')
-const showTaskModal = ref(true)
-const enabledRules = ref(['去重过滤', '敏感词清洗'])
+const uploadedFileName = ref('')
 
 const baseFields = ref([
   { key: 'language', label: '语言', value: 'zh', options: ['zh', 'en'] },
@@ -86,17 +86,6 @@ const baseFields = ref([
   { key: 'chatTemplate', label: '对话模板', value: 'default', options: ['default', 'chatml', 'alpaca'] },
   { key: 'ropeScale', label: 'RoPE插值方法', value: 'none', options: ['none', 'linear', 'dynamic'] },
   { key: 'boostMethod', label: '加速方式', value: 'auto', options: ['auto', 'flash-attn', 'unsloth'] },
-])
-
-const configFields = ref([
-  { key: 'source', label: '数据来源', value: '请选择内容', options: ['本地上传', '数据集管理', '外部服务'] },
-  { key: 'dataType', label: '数据类型', value: '请选择内容', options: ['文本', '结构化', '多模态'] },
-  { key: 'cleanRule', label: '清洗规则', value: '请选择内容', options: ['基础清洗', '严格清洗', '自定义规则'] },
-  { key: 'chunkSize', label: '切分粒度', value: '请选择内容', options: ['短文本', '中等片段', '长上下文'] },
-  { key: 'limit', label: '样本上限', value: '', input: true, inputType: 'number', min: 1, step: 1, placeholder: '请输入' },
-  { key: 'dedupe', label: '重复过滤', value: '请选择内容', options: ['开启', '关闭'] },
-  { key: 'quality', label: '质量阈值', value: '', input: true, inputType: 'number', min: 0, max: 1, step: 0.01, placeholder: '请输入' },
-  { key: 'strategy', label: '生成策略', value: '请选择内容', options: ['快速生成', '均衡生成', '高质量生成'] },
 ])
 
 const trainFields = ref([
@@ -116,8 +105,6 @@ const trainSliders = ref([
   { key: 'gradientAccumulation', label: '梯度累积', hint: '梯度累积的步数', value: 5, min: 4, max: 1260 },
   { key: 'validationRatio', label: '验证集比例', hint: '验证集占全部样本的百分比', value: 5, min: 4, max: 1260 },
 ])
-
-const taskSteps = ['选择数据', '规则配置', '生成预览', '创建任务']
 
 const activePageProps = computed(() => {
   if (activePage.value.type === 'fineTuneBase' || activePage.value.type === 'fineTuneExpand') {
@@ -146,31 +133,25 @@ const activePageProps = computed(() => {
   }
 
   if (activePage.value.type === 'datasetPreview') {
-    return {}
+    return {
+      fileName: uploadedFileName.value,
+    }
   }
 
   if (activePage.value.type === 'datasetConfig') {
     return {}
   }
 
-  return {
-    showTaskModal: showTaskModal.value,
-    taskName: taskName.value,
-    serviceName: serviceName.value,
-    taskSteps,
-  }
+  return {}
 })
 
-function go(delta) {
-  activeIndex.value = (activeIndex.value + delta + pages.length) % pages.length
-}
-
 function selectPage(index) {
+  if (index < 0 || index >= pages.length) {
+    return
+  }
   activeIndex.value = index
   openDropdown.value = ''
-  if (pages[index].type === 'datasetTask') {
-    showTaskModal.value = true
-  }
+  window.history.replaceState({}, '', `?page=${pages[index].id}`)
 }
 
 function dropdownKey(group, field) {
@@ -211,14 +192,6 @@ function togglePanel(panel) {
   openPanels.value = [...openPanels.value, panel]
 }
 
-function toggleRule(rule) {
-  if (enabledRules.value.includes(rule)) {
-    enabledRules.value = enabledRules.value.filter((item) => item !== rule)
-    return
-  }
-  enabledRules.value = [...enabledRules.value, rule]
-}
-
 function createDatasetTask() {
   selectPage(6)
 }
@@ -231,27 +204,30 @@ function updatePageJump(value) {
   pageJump.value = value
 }
 
-function updateTaskName(value) {
-  taskName.value = value
+function selectUploadedFile(fileName) {
+  uploadedFileName.value = fileName
+  selectPage(4)
 }
 
-function updateServiceName(value) {
-  serviceName.value = value
-}
-
-function closeTaskModal() {
-  showTaskModal.value = false
-}
 </script>
 
 <template>
   <main class="app-shell" @click="closeDropdown">
-    <section class="stage">
+    <component v-if="isTaskPage" :is="activeComponent" @select-page="selectPage" />
+
+    <section v-else class="stage">
       <header class="global-bar">
         <button class="brand-mark" type="button" aria-label="menu">⌘</button>
         <nav class="breadcrumbs">
-          <span>上级页面</span>
-          <span>上级页面</span>
+          <button
+            v-for="item in breadcrumbItems"
+            :key="`${item.label}-${item.targetIndex}`"
+            type="button"
+            :disabled="item.targetIndex < 0"
+            @click="selectPage(item.targetIndex)"
+          >
+            {{ item.label }}
+          </button>
           <strong>当前页面</strong>
         </nav>
         <div class="plan-name">当前用户：<strong>XXX</strong></div>
@@ -282,11 +258,8 @@ function closeTaskModal() {
             @select-page="selectPage"
             @update-keyword="updateKeyword"
             @update-page-jump="updatePageJump"
-            @update-task-name="updateTaskName"
-            @update-service-name="updateServiceName"
-            @toggle-rule="toggleRule"
+            @select-uploaded-file="selectUploadedFile"
             @create-task="createDatasetTask"
-            @close-modal="closeTaskModal"
           />
         </section>
 
